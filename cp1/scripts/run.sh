@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Setup ROS environment
-source /opt/ros/indigo.setup.bash
+source /opt/ros/indigo/setup.bash
 cd /catkin_ws
 source devel/setup.bash
 
