@@ -58,3 +58,9 @@ RUN apt-get install -y wget
 RUN add-apt-repository ppa:openjdk-r/ppa &&\
     apt-get update &&\
     apt-get install -y openjdk-8-jdk
+
+# Create a docker user
+RUN apt-get install -y sudo
+RUN useradd --password docker docker
+RUN mkdir /home/docker
+RUN echo 'docker ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
