@@ -1,4 +1,4 @@
-# Dockerfile.BRASS
+# BRASS Dockerfiles
 
 ### Building from source
 
