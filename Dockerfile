@@ -50,3 +50,11 @@ RUN bash -c " source /opt/ros/indigo/setup.bash &&\
               catkin_init_workspace &&\
               cd .. &&\
               catkin_make"
+
+# Install other useful packages
+RUN apt-get install -y wget
+
+# Install OpenJDK 8
+RUN add-apt-repository ppa:openjdk-r/ppa &&\
+    apt-get update &&\
+    apt-get install -y openjdk-8-jdk
