@@ -1,5 +1,9 @@
 # BRASS Dockerfiles
 
+* *brass:base*, specifies the base image used by all other BRASS projects.
+  Provides a minimal working environment, equipped with ROS, TurtleBot,
+  Gazebo, Java 8 JDK, and Python 2.7.
+
 ### Building from source
 
 All of the Docker images within this repository should be constructed by
