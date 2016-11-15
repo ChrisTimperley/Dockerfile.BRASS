@@ -8,3 +8,6 @@ build-base:
 
 build-cp1: build-base
 	docker build -t brass:cp1 cp1
+
+build-invariant: build-base
+	docker build -t brass:invariant invariant
