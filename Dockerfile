@@ -58,6 +58,7 @@ RUN apt-get install -y wget
 RUN add-apt-repository ppa:openjdk-r/ppa &&\
     apt-get update &&\
     apt-get install -y openjdk-8-jdk
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 
 # Create a docker user
 RUN apt-get install -y sudo
