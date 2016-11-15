@@ -1,5 +1,15 @@
 # Dockerfile.BRASS
 
+### Building from source
+
+All of the Docker images within this repository should be constructed by
+simply invoking `make`. Docker will use caching when rebuilding the images,
+so incremental builds are particularly fast.
+
+```
+make
+```
+
 ### Running a container with X forwarding
 
 In order to use X11 inside an interactive Docker container, the `launch.sh`
