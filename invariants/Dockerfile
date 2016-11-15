@@ -8,3 +8,5 @@ RUN mkdir /daikon && cd /daikon &&\
     rm -f daikon-5.4.2.tar.gz
 ENV DAIKONDIR /daikon/daikon-5.4.2
 
+ADD invariants_entrypoint.sh /
+ENTRYPOINT /invariants_entrypoint.sh
