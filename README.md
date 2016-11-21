@@ -5,15 +5,12 @@
   Gazebo, Java 8 JDK, and Python 2.7.
 * *brass:cp1* - provides a production-ready environment for Challenge
   Problem 1, including all staged artefacts.
-* *brass:invariants* - provides a minimal environment for performing
-  experiments on the identification of useful (architectural) invariants
-  from observation of ROS interactions.
 
 ### Building from source
 
 All of the Docker images within this repository should be constructed by
-simply invoking `make`. Docker will use caching when rebuilding the images,
-so incremental builds are particularly fast.
+invoking `make`. Docker will use caching when rebuilding the images, so
+incremental builds should be particularly fast.
 
 ```
 make
