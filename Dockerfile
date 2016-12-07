@@ -16,7 +16,8 @@ RUN apt-get install -y  ros-indigo-turtlebot\
                         ros-indigo-rocon-qt-library
 
 # Install ROS rqt
-RUN apt-get install -y  ros-indigo-rqt\
+RUN apt-get update &&\
+    apt-get install -y  ros-indigo-rqt\
                         ros-indigo-rqt-common-plugins
 
 # Install Python packages
