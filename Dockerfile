@@ -15,6 +15,10 @@ RUN apt-get install -y  ros-indigo-turtlebot\
                         ros-indigo-ar-track-alvar-msgs\
                         ros-indigo-rocon-qt-library
 
+# Install ROS rqt
+RUN apt-get install -y  ros-indigo-rqt\
+                        ros-indigo-rqt-common-plugins
+
 # Install Python packages
 RUN apt-get install -y  python-flask\
                         python-enum\
