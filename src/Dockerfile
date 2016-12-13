@@ -57,3 +57,16 @@ RUN bash -c " source /opt/ros/indigo/setup.bash &&\
 RUN mkdir "${catkin_ws_location}/kobuki"
 RUN cd ${catkin_ws_location}/kobuki &&\
     wstool init src -j5 https://raw.githubusercontent.com/yujinrobot/yujin_tools/master/rosinstalls/indigo/kobuki.rosinstall
+RUN bash -c " source /opt/ros/indigo/setup.bash &&\
+              rosdep install --from-paths '${catkin_ws_location}/rocon/src' --ignore-src --rosdistro indigo -y &&\
+              cd ${catkin_ws_location} && catkin_make"
+
+# Install TurtleBot from source
+RUN mkdir "${catkin_ws_location}/turtlebot"
+RUN cd ${catkin_ws_location}/turtlebot &&\
+    wstool init src -j5 https://raw.githubusercontent.com/yujinrobot/yujin_tools/master/rosinstalls/indigo/turtlebot.rosinstall
+RUN bash -c " source /opt/ros/indigo/setup.bash &&\
+              rosdep install --from-paths '${catkin_ws_location}/rocon/src' --ignore-src --rosdistro indigo -y &&\
+              cd ${catkin_ws_location} && catkin_make"
+
+
