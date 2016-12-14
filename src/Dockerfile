@@ -1,6 +1,4 @@
-#
-# https://hub.docker.com/_/ros/
-FROM ros:indigo
+FROM ubuntu:14.04
 MAINTAINER Chris Timperley "christimperley@gmail.com"
 
 RUN apt-get update
@@ -11,83 +9,50 @@ RUN useradd --password turtlebot turtlebot
 RUN mkdir /home/turtlebot
 RUN echo 'turtlebot ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
-# Install Python packages
-RUN apt-get install -y  python-flask\
-                        python-enum\
-                        python-ply\
-                        software-properties-common
+# Add installation scripts to /tmp
+ADD install_prerequisites.sh /tmp/install_prerequisites.sh
 
-# Add support for headless X server
-RUN apt-get install -y xserver-xorg-video-dummy 
-
-# Install other useful packages
-RUN apt-get install -y wget gcc g++ build-essential
-
-# Install OpenJDK 8
-#RUN add-apt-repository ppa:openjdk-r/ppa &&\
-#    apt-get update &&\
-#    apt-get install -y openjdk-8-jdk
-#ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-
-# Manually install dependencies
-#ADD dependencies /dependencies
-#RUN cp  /dependencies/tcpros_service.py\
-#        /opt/ros/indigo/lib/python2.7/dist-packages/rospy/impl/
-#RUN rm -rf /dependencies
-
-# Create a catkin workspace
-ENV catkin_ws_location /catkin_ws
-WORKDIR ${catkin_ws_location}
-RUN mkdir -p "${catkin_ws_location}/src"
-RUN bash -c " source /opt/ros/indigo/setup.bash &&\
-              cd ${catkin_ws_location}/src &&\
-              catkin_init_workspace &&\
-              cd .. &&\
-              catkin_make"
-
-# Download install files for Rocon, Kobuki and TurtleBot
-RUN wget -q https://raw.githubusercontent.com/robotics-in-concert/rocon/release/indigo/rocon.rosinstall &&\
-    wget -q https://raw.githubusercontent.com/yujinrobot/yujin_tools/master/rosinstalls/indigo/kobuki.rosinstall &&\
-    wget -q https://raw.githubusercontent.com/yujinrobot/yujin_tools/master/rosinstalls/indigo/turtlebot.rosinstall
-
-# Merge these install files into a single install file
-RUN cat turtlebot.rosinstall kobuki.rosinstall rocon.rosinstall |\
-    egrep -v "^#" |\
-    egrep -v "^$" |\
-    egrep -v "^(\[|\])$" |\
-    grep -v "rocon_rapps" |\
-    sed "s/{'git':/- git:/g" |\
-    sed "s/}},/}/g" > all.rosinstall &&\
-    rm -f turtlebot.rosinstall kobuki.rosinstall rocon.rosinstall
-
-# Try to install?
-RUN wstool init -j5 src all.rosinstall
+# Add ROS sources and PGP keys
+RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list
+RUN apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 0xB01FA116
 RUN apt-get update
-RUN bash -c " source /opt/ros/indigo/setup.bash &&\
-              rosdep install --from-paths '${catkin_ws_location}/src' --ignore-src --rosdistro indigo -y &&\
-              cd ${catkin_ws_location} && catkin_make"
 
-# Install Rocon from source
-#RUN apt-get update
-#RUN mkdir "${catkin_ws_location}/rocon"
-#RUN cd ${catkin_ws_location}/rocon &&\
-#    wstool init -j5 src https://raw.githubusercontent.com/robotics-in-concert/rocon/release/indigo/rocon.rosinstall
-#RUN bash -c " source /opt/ros/indigo/setup.bash &&\
-#              rosdep install --from-paths '${catkin_ws_location}/rocon/src' --ignore-src --rosdistro indigo -y &&\
-#              cd ${catkin_ws_location} && catkin_make"
+# Install prerequisites (not a fan of this)
+RUN apt-get install -y linux-headers-generic pkg-config dkms python-rosdep\
+  python-rosinstall-generator python-wstool python-rosinstall build-essential wget
+RUN rosdep init && rosdep update
+RUN bash /tmp/install_prerequisites.sh && rm /tmp/install_prerequisites.sh
 
-# Install Kobuki from source
-#RUN mkdir "${catkin_ws_location}/kobuki"
-#RUN cd ${catkin_ws_location}/kobuki &&\
-#    wstool init src -j5 https://raw.githubusercontent.com/yujinrobot/yujin_tools/master/rosinstalls/indigo/kobuki.rosinstall
+# Create a catkin workspace for ROS
+#ENV catkin_ws_location /catkin_ws
+#WORKDIR ${catkin_ws_location}
+#RUN mkdir /ros_catkin_ws
 #RUN bash -c " source /opt/ros/indigo/setup.bash &&\
-#              rosdep install --from-paths '${catkin_ws_location}/rocon/src' --ignore-src --rosdistro indigo -y &&\
-#              cd ${catkin_ws_location} && catkin_make"
-#
-# Install TurtleBot from source
-#RUN mkdir "${catkin_ws_location}/turtlebot"
-#RUN cd ${catkin_ws_location}/turtlebot &&\
-#    wstool init src -j5 https://raw.githubusercontent.com/yujinrobot/yujin_tools/master/rosinstalls/indigo/turtlebot.rosinstall
-#RUN bash -c " source /opt/ros/indigo/setup.bash &&\
-#              rosdep install --from-paths '${catkin_ws_location}/rocon/src' --ignore-src --rosdistro indigo -y &&\
-#              cd ${catkin_ws_location} && catkin_make"
+#              cd /ros_catkin_ws/src/src &&\
+#              catkin_init_workspace &&\
+#              cd .. &&\
+#              catkin_make"
+
+# Create the TurtleBot source directories
+RUN mkdir /home/turtlebot/turtlebot_src
+RUN mkdir /home/turtlebot/turtlebot_src/ros_catkin_ws
+RUN mkdir /home/turtlebot/turtlebot_src/rocon_kobuki_turtlebot
+
+# Build the desktop version of ROS
+WORKDIR /home/turtlebot/turtlebot_src/ros_catkin_ws
+RUN rosinstall_generator desktop_full --rosdistro indigo --deps --wet-only --tar >\
+    indigo-desktop-full-wet.rosinstall
+RUN wstool init -j8 src indigo-desktop-full-wet.rosinstall &&\
+    rm indigo-desktop-full-wet.rosinstall
+RUN rosdep install --from-paths src --ignore-src --rosdistro indigo -y
+RUN ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
+
+# Install the TurtleBot packages
+# TODO: remove this ENV and fold into install_turtlebot_packages.py
+WORKDIR /home/turtlebot/turtlebot_src/rocon_kobuki_turtlebot
+ENV catkin_ws_location /home/turtlebot/turtlebot_src/rocon_kobuki_turtlebot
+ENV ros_catkin_ws /home/turtlebot/turtlebot_src/ros_catkin_ws
+USER turtlebot
+ENV USER turtlebot
+#RUN bash -c ". ${ros_catkin_ws}/install_isolated/setup.bash &&\
+#    python /tmp/install_turtlebot_packages.py"

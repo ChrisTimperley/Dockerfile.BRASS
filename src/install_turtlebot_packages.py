@@ -14,8 +14,7 @@ import subprocess
 import xml.etree.ElementTree as XmlTree
 import yaml
 
-catkin_ws_dir = os.environ['catkin_ws_location']
-print(catkin_ws_dir)
+catkin_ws_dir = '/home/turtlebot/turtlebot_src/rocon_kobuki_turtlebot'
 pkg_src_root_dir = catkin_ws_dir + '/src'
 install_dir_name = 'install_isolated'
 install_log_file_name = 'package_install_log.txt'
@@ -33,7 +32,7 @@ subprocess.check_call(['git', 'clone', '-b', 'indigo', 'https://github.com/stoni
 # I have assumed two things here:
 # 1. The username is turtlebot.
 # 2. The catkin workspace for building the ROS packages was created at /home/turtlebot/turtlebot_src/ros_catkin_ws
-ros_src_path = '/home/' + os.environ['USER'] + '/turtlebot_src/ros_catkin_ws/build_isolated'
+ros_src_path = '/home/turtlebot/turtlebot_src/ros_catkin_ws/build_isolated'
 
 installed_dependencies = Set(os.listdir(ros_src_path))
 installed_dependencies.remove('.built_by')
