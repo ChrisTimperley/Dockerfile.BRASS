@@ -15,11 +15,11 @@ ADD install_prerequisites.sh /tmp/install_prerequisites.sh
 # Add ROS sources and PGP keys
 RUN echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list
 RUN apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 0xB01FA116
-RUN apt-get update
+RUN apt-get update -qq
 
 # Install prerequisites (not a fan of this)
-RUN apt-get install -y linux-headers-generic pkg-config dkms python-rosdep\
-  python-rosinstall-generator python-wstool python-rosinstall build-essential wget
+RUN apt-get install -y linux-headers-generic pkg-config dkms build-essential wget
+RUN apt-get install -y python-rosdep python-rosinstall-generator python-wstool python-rosinstall
 RUN rosdep init && rosdep update
 RUN bash /tmp/install_prerequisites.sh && rm /tmp/install_prerequisites.sh
 
@@ -52,7 +52,7 @@ RUN ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release
 WORKDIR /home/turtlebot/turtlebot_src/rocon_kobuki_turtlebot
 ENV catkin_ws_location /home/turtlebot/turtlebot_src/rocon_kobuki_turtlebot
 ENV ros_catkin_ws /home/turtlebot/turtlebot_src/ros_catkin_ws
+ADD install_turtlebot_packages.py /home/turtlebot/turtlebot_src
 USER turtlebot
-ENV USER turtlebot
 #RUN bash -c ". ${ros_catkin_ws}/install_isolated/setup.bash &&\
 #    python /tmp/install_turtlebot_packages.py"
